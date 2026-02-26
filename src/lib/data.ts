@@ -429,6 +429,15 @@ export const bankAccounts: BankAccount[] = [
     currency: "VND",
     interestRate: 0.1,
   },
+  {
+    id: "acc-004",
+    bankName: "TienPhong Bank (TPBank)",
+    accountNumber: "****2468",
+    accountType: "Tiết kiệm online 3 tháng",
+    balance: 800_000_000,
+    currency: "VND",
+    interestRate: 4.4,
+  },
 ];
 
 // ── Mock Interest Records ──────────────────────────────────────
@@ -448,6 +457,11 @@ export const interestRecords: InterestRecord[] = [
   { id: "int-013", accountId: "acc-003", month: "2025-12", openingBalance: 600_083_337, interestEarned: 50_007, closingBalance: 600_133_344 },
   { id: "int-014", accountId: "acc-003", month: "2026-01", openingBalance: 600_133_344, interestEarned: 50_011, closingBalance: 600_183_355 },
   { id: "int-015", accountId: "acc-003", month: "2026-02", openingBalance: 620_000_000, interestEarned: 51_667, closingBalance: 620_051_667 },
+  { id: "int-016", accountId: "acc-004", month: "2025-10", openingBalance: 800_000_000, interestEarned: 2_933_333, closingBalance: 802_933_333 },
+  { id: "int-017", accountId: "acc-004", month: "2025-11", openingBalance: 802_933_333, interestEarned: 2_944_089, closingBalance: 805_877_422 },
+  { id: "int-018", accountId: "acc-004", month: "2025-12", openingBalance: 805_877_422, interestEarned: 2_954_884, closingBalance: 808_832_306 },
+  { id: "int-019", accountId: "acc-004", month: "2026-01", openingBalance: 808_832_306, interestEarned: 2_965_718, closingBalance: 811_798_024 },
+  { id: "int-020", accountId: "acc-004", month: "2026-02", openingBalance: 800_000_000, interestEarned: 2_933_333, closingBalance: 802_933_333 },
 ];
 
 // ── Mock Field Workers ─────────────────────────────────────────

@@ -12,6 +12,7 @@ import {
   Vote,
   Shield,
   ShieldAlert,
+  Settings,
 } from "lucide-react";
 
 const navLinks = [
@@ -23,6 +24,7 @@ const navLinks = [
   { href: "/anomalies", label: "AI Cảnh báo", icon: ShieldAlert },
   { href: "/portal", label: "Cộng tác viên", icon: Shield },
   { href: "/scan", label: "Quét mã", icon: QrCode },
+  { href: "/admin", label: "Quản trị", icon: Settings },
 ];
 
 const mobileLinks = [
