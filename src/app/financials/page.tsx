@@ -3,6 +3,8 @@ import {
   TrendingDown,
   Receipt,
   FileCheck,
+  Landmark,
+  Percent,
 } from "lucide-react";
 import {
   projects,
@@ -10,6 +12,9 @@ import {
   expenses,
   invoices,
   getFinancialSummary,
+  bankAccounts,
+  interestRecords,
+  getTotalInterestEarned,
 } from "@/lib/data";
 import { formatCurrency, formatDate } from "@/lib/format";
 import StatCard from "@/components/StatCard";
@@ -23,6 +28,9 @@ const invoiceStatusMap: Record<string, { label: string; className: string }> = {
 export default function FinancialsPage() {
   const summary = getFinancialSummary();
   const balance = summary.totalRaised - summary.totalSpent;
+  const totalInterest = getTotalInterestEarned();
+  const totalBankBalance = bankAccounts.reduce((s, a) => s + a.balance, 0);
+
   const allDonations = [...donations].sort((a, b) =>
     b.date.localeCompare(a.date)
   );
@@ -33,12 +41,23 @@ export default function FinancialsPage() {
     b.date.localeCompare(a.date)
   );
 
+  // Group interest by month for summary
+  const monthlyInterest = new Map<string, number>();
+  for (const record of interestRecords) {
+    const current = monthlyInterest.get(record.month) || 0;
+    monthlyInterest.set(record.month, current + record.interestEarned);
+  }
+  const sortedMonths = [...monthlyInterest.entries()].sort((a, b) =>
+    b[0].localeCompare(a[0])
+  );
+
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8">
       <div>
         <h1 className="text-3xl font-bold">Minh Bạch Tài Chính</h1>
         <p className="text-muted mt-1">
-          Toàn bộ nguồn thu, chi tiêu và hóa đơn được công khai
+          Toàn bộ nguồn thu, chi tiêu, lãi suất ngân hàng và hóa đơn được công
+          khai
         </p>
       </div>
 
@@ -63,16 +82,129 @@ export default function FinancialsPage() {
           color="text-primary"
         />
         <StatCard
-          label="Tổng hóa đơn"
-          value={String(allInvoices.length)}
-          icon={FileCheck}
+          label="Tổng lãi suất tích lũy"
+          value={formatCurrency(totalInterest)}
+          icon={Percent}
           color="text-accent"
         />
       </div>
 
+      {/* Bank Accounts - Multi-account tracking */}
+      <section className="bg-card rounded-xl border border-border p-5">
+        <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
+          <Landmark className="w-5 h-5 text-primary" />
+          Tài Khoản Ngân Hàng ({bankAccounts.length})
+        </h2>
+        <p className="text-sm text-muted mb-4">
+          Theo dõi đa tài khoản - tổng số dư:{" "}
+          <strong>{formatCurrency(totalBankBalance)}</strong>
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {bankAccounts.map((acc) => (
+            <div
+              key={acc.id}
+              className="rounded-lg border border-border p-4 space-y-2"
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-sm">{acc.bankName}</span>
+                <span className="text-xs text-muted font-mono">
+                  {acc.accountNumber}
+                </span>
+              </div>
+              <p className="text-xs text-muted">{acc.accountType}</p>
+              <p className="text-lg font-bold">
+                {formatCurrency(acc.balance)}
+              </p>
+              <p className="text-xs">
+                Lãi suất:{" "}
+                <span className="font-semibold text-accent">
+                  {acc.interestRate}%/năm
+                </span>
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Monthly Interest */}
+      <section className="bg-card rounded-xl border border-border p-5">
+        <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
+          <Percent className="w-5 h-5 text-accent" />
+          Lãi Suất Ngân Hàng Hàng Tháng
+        </h2>
+        <p className="text-sm text-muted mb-4">
+          Tổng lãi suất tích lũy:{" "}
+          <strong className="text-accent">
+            {formatCurrency(totalInterest)}
+          </strong>{" "}
+          - Toàn bộ lãi được sử dụng cho hoạt động từ thiện
+        </p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border text-left text-muted">
+                <th className="pb-2 pr-4">Tháng</th>
+                {bankAccounts.map((acc) => (
+                  <th key={acc.id} className="pb-2 pr-4 text-right">
+                    {acc.bankName}
+                  </th>
+                ))}
+                <th className="pb-2 text-right">Tổng lãi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedMonths.map(([month, total]) => (
+                <tr
+                  key={month}
+                  className="border-b border-border last:border-0"
+                >
+                  <td className="py-2 pr-4 font-mono text-xs">{month}</td>
+                  {bankAccounts.map((acc) => {
+                    const record = interestRecords.find(
+                      (r) => r.accountId === acc.id && r.month === month
+                    );
+                    return (
+                      <td
+                        key={acc.id}
+                        className="py-2 pr-4 text-right text-accent"
+                      >
+                        {record
+                          ? formatCurrency(record.interestEarned)
+                          : "-"}
+                      </td>
+                    );
+                  })}
+                  <td className="py-2 text-right font-semibold text-accent">
+                    {formatCurrency(total)}
+                  </td>
+                </tr>
+              ))}
+              <tr className="font-bold bg-gray-50">
+                <td className="py-2 pr-4">Tổng cộng</td>
+                {bankAccounts.map((acc) => {
+                  const accTotal = interestRecords
+                    .filter((r) => r.accountId === acc.id)
+                    .reduce((s, r) => s + r.interestEarned, 0);
+                  return (
+                    <td
+                      key={acc.id}
+                      className="py-2 pr-4 text-right text-accent"
+                    >
+                      {formatCurrency(accTotal)}
+                    </td>
+                  );
+                })}
+                <td className="py-2 text-right text-accent">
+                  {formatCurrency(totalInterest)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       {/* Income & Expenses Side by Side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* All Donations */}
         <section className="bg-card rounded-xl border border-border p-5">
           <h2 className="font-bold text-lg mb-4 text-success">
             Nguồn Thu ({allDonations.length} khoản)
@@ -102,7 +234,6 @@ export default function FinancialsPage() {
           </div>
         </section>
 
-        {/* All Expenses */}
         <section className="bg-card rounded-xl border border-border p-5">
           <h2 className="font-bold text-lg mb-4 text-danger">
             Khoản Chi ({allExpenses.length} khoản)
@@ -122,6 +253,11 @@ export default function FinancialsPage() {
                   <p className="text-xs text-muted">
                     Duyệt bởi: {e.approvedBy}
                   </p>
+                  {e.marketPrice && (
+                    <p className="text-xs text-muted">
+                      Giá thị trường: {formatCurrency(e.marketPrice)}
+                    </p>
+                  )}
                 </div>
                 <span className="text-sm font-bold text-danger whitespace-nowrap">
                   -{formatCurrency(e.amount)}
@@ -170,7 +306,9 @@ export default function FinancialsPage() {
               <tr className="font-bold bg-gray-50">
                 <td className="py-3 pr-4">Tổng cộng</td>
                 <td className="py-3 pr-4 text-right">
-                  {formatCurrency(projects.reduce((s, p) => s + p.goal, 0))}
+                  {formatCurrency(
+                    projects.reduce((s, p) => s + p.goal, 0)
+                  )}
                 </td>
                 <td className="py-3 pr-4 text-right text-success">
                   {formatCurrency(summary.totalRaised)}
@@ -189,7 +327,8 @@ export default function FinancialsPage() {
 
       {/* All Invoices */}
       <section className="bg-card rounded-xl border border-border p-5">
-        <h2 className="font-bold text-lg mb-4">
+        <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
+          <FileCheck className="w-5 h-5 text-accent" />
           Hóa Đơn Tự Động ({allInvoices.length})
         </h2>
         <div className="overflow-x-auto">

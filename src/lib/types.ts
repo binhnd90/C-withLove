@@ -2,6 +2,7 @@ export interface Donor {
   id: string;
   name: string;
   anonymous: boolean;
+  verificationCode?: string;
 }
 
 export interface Donation {
@@ -24,6 +25,7 @@ export interface Expense {
   category: string;
   invoiceId?: string;
   approvedBy: string;
+  marketPrice?: number;
 }
 
 export interface Invoice {
@@ -47,9 +49,30 @@ export interface ProgressEntry {
   description: string;
   imageUrl?: string;
   completionPercent: number;
+  author?: string;
+  role?: string;
 }
 
 export type ProjectStatus = "active" | "completed" | "planning";
+
+export interface BidItem {
+  id: string;
+  name: string;
+  unit: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  specification: string;
+}
+
+export interface BidDocument {
+  projectId: string;
+  technicalStandards: string[];
+  items: BidItem[];
+  totalEstimate: number;
+  approvedDate?: string;
+  publicReviewDeadline?: string;
+}
 
 export interface Project {
   id: string;
@@ -74,4 +97,97 @@ export interface FinancialSummary {
   totalProjects: number;
   activeProjects: number;
   currency: string;
+}
+
+// ── Proposals & Voting ─────────────────────────────────────────
+export type ProposalStatus = "open" | "approved" | "rejected" | "implemented";
+
+export interface Proposal {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  location: string;
+  estimatedBudget: number;
+  currency: string;
+  proposedBy: string;
+  createdDate: string;
+  status: ProposalStatus;
+  votesFor: number;
+  votesAgainst: number;
+  linkedProjectId?: string;
+}
+
+// ── Bank Accounts & Interest ───────────────────────────────────
+export interface BankAccount {
+  id: string;
+  bankName: string;
+  accountNumber: string;
+  accountType: string;
+  balance: number;
+  currency: string;
+  interestRate: number;
+}
+
+export interface InterestRecord {
+  id: string;
+  accountId: string;
+  month: string;
+  openingBalance: number;
+  interestEarned: number;
+  closingBalance: number;
+}
+
+// ── Field Portal ───────────────────────────────────────────────
+export type UserRole = "admin" | "field_worker" | "auditor" | "public";
+
+export interface FieldWorker {
+  id: string;
+  name: string;
+  role: UserRole;
+  assignedProjects: string[];
+  email: string;
+  phone: string;
+}
+
+export interface FieldReport {
+  id: string;
+  projectId: string;
+  workerId: string;
+  date: string;
+  type: "progress" | "invoice" | "issue";
+  title: string;
+  description: string;
+  imageUrls: string[];
+  invoiceAmount?: number;
+  status: "submitted" | "reviewed" | "approved";
+}
+
+// ── AI Anomaly Detection ───────────────────────────────────────
+export type AlertSeverity = "low" | "medium" | "high" | "critical";
+export type AlertType = "price_anomaly" | "spending_pattern" | "timeline_delay" | "efficiency";
+
+export interface AnomalyAlert {
+  id: string;
+  projectId: string;
+  type: AlertType;
+  severity: AlertSeverity;
+  title: string;
+  description: string;
+  suggestion: string;
+  detectedDate: string;
+  relatedExpenseId?: string;
+  marketReference?: number;
+  actualAmount?: number;
+  dismissed: boolean;
+}
+
+export interface AISuggestion {
+  id: string;
+  projectId: string;
+  title: string;
+  description: string;
+  potentialSaving: number;
+  category: string;
+  createdDate: string;
 }

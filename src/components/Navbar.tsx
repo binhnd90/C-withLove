@@ -9,14 +9,28 @@ import {
   Receipt,
   QrCode,
   CalendarClock,
+  Vote,
+  Shield,
+  ShieldAlert,
 } from "lucide-react";
 
 const navLinks = [
   { href: "/", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/projects", label: "Dự án", icon: FolderOpen },
+  { href: "/proposals", label: "Bình chọn", icon: Vote },
+  { href: "/financials", label: "Tài chính", icon: Receipt },
+  { href: "/progress", label: "Tiến độ", icon: CalendarClock },
+  { href: "/anomalies", label: "AI Cảnh báo", icon: ShieldAlert },
+  { href: "/portal", label: "Cộng tác viên", icon: Shield },
+  { href: "/scan", label: "Quét mã", icon: QrCode },
+];
+
+const mobileLinks = [
+  { href: "/", label: "Tổng quan", icon: LayoutDashboard },
+  { href: "/projects", label: "Dự án", icon: FolderOpen },
+  { href: "/proposals", label: "Bình chọn", icon: Vote },
   { href: "/financials", label: "Tài chính", icon: Receipt },
   { href: "/scan", label: "Quét mã", icon: QrCode },
-  { href: "/progress", label: "Tiến độ", icon: CalendarClock },
 ];
 
 export default function Navbar() {
@@ -36,7 +50,7 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <nav className="flex-1 px-3 py-4 space-y-1">
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {navLinks.map(({ href, label, icon: Icon }) => {
             const active =
               href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -64,7 +78,7 @@ export default function Navbar() {
 
       {/* Mobile bottom bar */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border z-30 flex justify-around py-2">
-        {navLinks.map(({ href, label, icon: Icon }) => {
+        {mobileLinks.map(({ href, label, icon: Icon }) => {
           const active =
             href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (

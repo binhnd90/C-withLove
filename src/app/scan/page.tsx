@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { QrCode, Search, ArrowRight } from "lucide-react";
+import { QrCode, Search, ArrowRight, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { projects } from "@/lib/data";
 
@@ -95,6 +96,26 @@ export default function ScanPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* Anonymous Verification */}
+      <section className="bg-card rounded-xl border border-border p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <ShieldCheck className="w-6 h-6 text-primary" />
+          <h2 className="font-bold text-lg">Xác Minh Đóng Góp Ẩn Danh</h2>
+        </div>
+        <p className="text-sm text-muted mb-4">
+          Bạn đã đóng góp ở chế độ ẩn danh? Sử dụng mã xác minh riêng để đối
+          soát khoản tiền của mình mà không cần tiết lộ danh tính.
+        </p>
+        <Link
+          href="/scan/verify"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors"
+        >
+          <ShieldCheck className="w-4 h-4" />
+          Xác minh ẩn danh
+          <ArrowRight className="w-4 h-4" />
+        </Link>
       </section>
 
       {/* How it works */}
