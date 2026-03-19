@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
+import AuthProvider from "@/components/AuthProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,10 +17,12 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body className="antialiased">
-        <Navbar />
-        <main className="md:ml-64 min-h-screen pb-20 md:pb-0">
-          {children}
-        </main>
+        <AuthProvider>
+          <Navbar />
+          <main className="md:ml-64 min-h-screen pb-20 md:pb-0">
+            {children}
+          </main>
+        </AuthProvider>
       </body>
     </html>
   );

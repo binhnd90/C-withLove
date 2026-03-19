@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import {
   Heart,
   LayoutDashboard,
@@ -13,9 +14,12 @@ import {
   Shield,
   ShieldAlert,
   Settings,
+  LogIn,
+  LogOut,
+  User,
 } from "lucide-react";
 
-const navLinks = [
+const publicLinks = [
   { href: "/", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/projects", label: "Dự án", icon: FolderOpen },
   { href: "/proposals", label: "Bình chọn", icon: Vote },
@@ -24,7 +28,6 @@ const navLinks = [
   { href: "/anomalies", label: "AI Cảnh báo", icon: ShieldAlert },
   { href: "/portal", label: "Cộng tác viên", icon: Shield },
   { href: "/scan", label: "Quét mã", icon: QrCode },
-  { href: "/admin", label: "Quản trị", icon: Settings },
 ];
 
 const mobileLinks = [
@@ -37,6 +40,8 @@ const mobileLinks = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const isLoggedIn = !!session?.user;
 
   return (
     <>
@@ -53,7 +58,7 @@ export default function Navbar() {
         </Link>
 
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          {navLinks.map(({ href, label, icon: Icon }) => {
+          {publicLinks.map(({ href, label, icon: Icon }) => {
             const active =
               href === "/" ? pathname === "/" : pathname.startsWith(href);
             return (
@@ -71,7 +76,70 @@ export default function Navbar() {
               </Link>
             );
           })}
+
+          {/* Admin link - only for logged in users */}
+          {isLoggedIn && (
+            <Link
+              href="/admin"
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                pathname.startsWith("/admin")
+                  ? "bg-primary-light text-primary-dark"
+                  : "text-muted hover:bg-gray-100 hover:text-foreground"
+              }`}
+            >
+              <Settings className="w-5 h-5" />
+              Quản trị
+            </Link>
+          )}
         </nav>
+
+        {/* Auth section */}
+        <div className="px-3 py-3 border-t border-border">
+          {isLoggedIn ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 px-3 py-2">
+                {session.user?.image ? (
+                  <img
+                    src={session.user.image}
+                    alt=""
+                    className="w-7 h-7 rounded-full"
+                  />
+                ) : (
+                  <div className="w-7 h-7 bg-primary-light rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-primary" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium truncate">
+                    {session.user?.name || "Admin"}
+                  </p>
+                  <p className="text-xs text-muted truncate">
+                    {session.user?.email}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-muted hover:bg-gray-100 hover:text-foreground transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Đăng xuất
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                pathname === "/login"
+                  ? "bg-primary-light text-primary-dark"
+                  : "text-muted hover:bg-gray-100 hover:text-foreground"
+              }`}
+            >
+              <LogIn className="w-5 h-5" />
+              Đăng nhập
+            </Link>
+          )}
+        </div>
 
         <div className="px-6 py-4 border-t border-border text-xs text-muted">
           Minh bạch &middot; Tin cậy &middot; Nhân ái
